@@ -1,28 +1,29 @@
 package com.company.journalApp.controller;
 
-import com.company.journalApp.JournalEntry;
+import com.company.journalApp.entity.JournalEntry;
+import com.company.journalApp.service.JournalEntryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/journal")
 public class JournalEntryControllerV2 {
 
+    @Autowired
+    private JournalEntryService journalEntryService;
 
     // Always controller class will be having public access as it should be accessed by spring
     @GetMapping
     public List<JournalEntry> getAll(){
-
-        return null;
+        return journalEntryService.getAll();
     }
 
     @PostMapping()
-    public boolean createEntry(@RequestBody JournalEntry myEntry){
-        return true;
+    public JournalEntry createEntry(@RequestBody JournalEntry myEntry){
+        journalEntryService.saveEntry(myEntry);
+        return myEntry;
     }
 
     @GetMapping("id/{myId}")
