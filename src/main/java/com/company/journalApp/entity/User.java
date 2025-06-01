@@ -24,6 +24,6 @@ public class User {
     @NonNull
     private String password;
 
-    @DBRef //it will keep reference of Journal entry in this, mapping to a user
+    @DBRef //it will keep reference Object id of Journal entry in this, mapping to a user specifically for mongodb
     private List<JournalEntry> journalEntries = new ArrayList<>();
 }

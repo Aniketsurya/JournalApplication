@@ -1,6 +1,7 @@
 package com.company.journalApp.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Document(collection = "journal.entries")
 @Data
+@NoArgsConstructor // this is not in @Data and it is required for deserization from JSON to POJO
 public class JournalEntry {
 
     @Id

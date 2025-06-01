@@ -2,6 +2,8 @@ package com.company.journalApp.controller;
 
 import com.company.journalApp.entity.JournalEntry;
 import com.company.journalApp.service.JournalEntryService;
+import com.company.journalApp.service.UserService;
+import com.company.journalApp.entity.User;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,21 +21,25 @@ public class JournalEntryControllerV2 {
     @Autowired
     private JournalEntryService journalEntryService;
 
+    @Autowired
+    private UserService userService;
+
     // Always controller class will be having public access as it should be accessed by spring
-    @GetMapping
-    public ResponseEntity<List<JournalEntry>> getAll(){
-        List<JournalEntry> all = journalEntryService.getAll();
+    @GetMapping("{username}")
+    public ResponseEntity<List<JournalEntry>> getAllJournalEntriesOfUser(@PathVariable String username){
+        User user = userService.findByUsername(username);
+        List<JournalEntry> all = user.getJournalEntries();
         if (all != null && !all.isEmpty()){
             return new ResponseEntity<>(all, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping()
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry){
+    @PostMapping("{username}")
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry, @PathVariable String username){
         try{
-            myEntry.setDate(LocalDateTime.now());
-            journalEntryService.saveEntry(myEntry);
+            //@DBRef will ensure that it is mapped to rows of other entity object ID but we have to manually add that object ID
+            journalEntryService.saveEntry(myEntry, username);
             return new ResponseEntity<>(myEntry, HttpStatus.OK);
         }catch (Exception e){
            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -50,14 +56,14 @@ public class JournalEntryControllerV2 {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("id/{myId}")
-    public ResponseEntity<?> deleteJournalEntryById(@PathVariable ObjectId myId){
-        journalEntryService.deleteByID(myId);
+    @DeleteMapping("id/{username}/{myId}")
+    public ResponseEntity<?> deleteJournalEntryById(@PathVariable ObjectId myId,@PathVariable String username){
+        journalEntryService.deleteByID(myId, username);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("id/{myId}")
-    public ResponseEntity<?> updateJournalEntryById(@PathVariable ObjectId myId,@RequestBody JournalEntry myEntry){
+    @PutMapping("id/{username}/{myId}")
+    public ResponseEntity<?> updateJournalEntryById(@PathVariable ObjectId myId,@RequestBody JournalEntry myEntry, @PathVariable String username){
         JournalEntry oldEntry = journalEntryService.findById(myId).orElse(null);
         if(oldEntry != null) {
             oldEntry.setTitle(myEntry.getTitle() != null && !myEntry.getTitle().equals("") ? myEntry.getTitle() : oldEntry.getTitle());
